@@ -27,4 +27,6 @@ Completed | Feature
 :x: | Format map data as a rich embed and posting via webhook
 :x: | Implement basic error handling
 :x: | Implement retry backoff in case of an error
+:x: | Add functionality to 'search' for specific monuments (Airport, Lighthouse, etc.)
+:x: | Test and finalize error handling
 :x: | Finalize documentation
