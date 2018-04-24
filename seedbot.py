@@ -3,7 +3,7 @@
 import json
 import requests
 from bs4 import BeautifulSoup
-from dhooks.webhook import Webhook
+from dhooks.discord_hooks import Webhook
 
 
 class Map():
