@@ -1,16 +1,17 @@
-# Rust SeedBot
+# SeedBot for Rust
 
 Generate Rust maps and post photos of them to a Discord channel via webhook.
 
 ## About
 
-Rust SeedBot is an experiment with Discord Webhooks and BeautifulSoup. On an hourly schedule, it generates a Rust map with [beancan.io](https://beancan.io/map-generate) and uses a webhook to post a rich embed including map size, seed, and photo to a Discord text channel.
+SeedBot for Rust is an experiment with Discord Webhooks and BeautifulSoup. On an hourly schedule, it generates a Rust map with [beancan.io](https://beancan.io/map-generate) and uses a webhook to post a rich embed including map size, seed, and photo to a Discord text channel.
 
 ## Setup
 
 1. Clone repository.
-2. Copy `cfg/config-example.json` to `config.json` and enter your info (see [below](#retrieving-laravel_session) for help).
-3. Run `seedbot.py` using a scheduling system (e.g. [cron](https://debian-administration.org/article/56/Command_scheduling_with_cron))
+2. Clone dependencies with `git submodule init`
+3. Copy `cfg/config-example.json` to `config.json` and enter your info (see [below](#retrieving-laravel_session) for help).
+4. Run `seedbot.py` using a scheduler (e.g. [cron](https://debian-administration.org/article/56/Command_scheduling_with_cron))
 
 ## Retrieving `laravel_session`
 
