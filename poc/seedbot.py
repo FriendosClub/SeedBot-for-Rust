@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.6
+
 import argparse
 import json
 import re
@@ -19,6 +21,7 @@ def debug(msg: str):
             print(f"[DEBUG] {line}")
         print("")
 
+
 r = requests.get(args.beancan_url)
 debug(f"Got response {r.status_code} from {args.beancan_url}")
 
@@ -30,6 +33,7 @@ media_content = soup.find_all("div", class_="media-content")[0]
 debug(f"media_content text:\n{media_content.text}")
 
 # Extract tag list as a list
+# I feel dirty using a pattern like '.*, .*' but it works. ¯\_(ツ)_/¯
 tags = re.findall(r'\S.*, .*', media_content.text)[0].strip().split(', ')
 debug(f"tags: {tags}")
 
@@ -64,46 +68,45 @@ content = (":map: **New map generated!**\n\n",
 # At this point, discord_hooks.py would come into play
 # However, I don't have my rewrite on my workstation,
 #   so I'm shelving this for now.
-embed = {
-    'title': f"Procedural Map {seed}",
-    'url': "args.beancan_url",
-    'color': 13517355,                          # Rust logo color
-    # 'footer': {},                             # TODO: Add footer
-    'image': {
-        'url': hires_map_url
-    },
-    'author': {
-        'name': "Rust Seeds Bot",
-        'url': '',                              # TODO: Add Github link
-        'icon_url': "https://i.imgur.com/r5jdE71.png"
-    },
-    'fields': [
-        {
-            'name': 'Seed',
-            'value': seed
-        },
-        {
-            'name': 'Size',
-            'value': size
-        },
-        {
-            'name': 'Features',
-            'value': ', '.join(tags)
-        },
-        {
-            'name': 'High-res image',
-            'value': hires_map_url
-        },
-        {
-            'name': 'Image w/ monuments',
-            'value': monuments_url
-        }
-    ]
-}
-
+# embed = {
+#     'title': f"Procedural Map {seed}",
+#     'url': "args.beancan_url",
+#     'color': 13517355,                          # Rust logo color
+#     # 'footer': {},                             # TODO: Add footer
+#     'image': {
+#         'url': hires_map_url
+#     },
+#     'author': {
+#         'name': "Rust Seeds Bot",
+#         'url': '',                              # TODO: Add Github link
+#         'icon_url': "https://i.imgur.com/r5jdE71.png"
+#     },
+#     'fields': [
+#         {
+#             'name': 'Seed',
+#             'value': seed
+#         },
+#         {
+#             'name': 'Size',
+#             'value': size
+#         },
+#         {
+#             'name': 'Features',
+#             'value': ', '.join(tags)
+#         },
+#         {
+#             'name': 'High-res image',
+#             'value': hires_map_url
+#         },
+#         {
+#             'name': 'Image w/ monuments',
+#             'value': monuments_url
+#         }
+#     ]
+# }
 
 webhook_data = {
-    'username': "Rust Seeds Bot",
+    'username': "SeedBot for Rust",
     'avatar_url': "https://i.imgur.com/r5jdE71.png",    # Transparent map icon
     'content': ''.join(content)
 }
