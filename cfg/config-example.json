@@ -1,5 +1,6 @@
 {
     "webook_url": "https://discordapp.com/api/webhooks/id/key",
-    "laravel_session": "SEE_README_MD_FOR_INSTRUCTIONS",
+    "beancan_email": "you@domain.com",
+    "beancan_password": "p@ssw0rd",
     "map_size": 3000
 }
