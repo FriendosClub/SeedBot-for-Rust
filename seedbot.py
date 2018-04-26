@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import json
 import requests
 from bs4 import BeautifulSoup
@@ -7,11 +8,17 @@ from random import randint
 from seedbot.map import Map
 from time import sleep
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", help="Print debug info",
+                    action="store_true")
+
+args = parser.parse_args()
+
 
 def debug_print(msg: str):
-    # TODO: Only print debug info if command-line flag is set
-    for line in msg.splitlines():
-        print(f"[DEBUG] {line}")
+    if args.verbose:
+        for line in msg.splitlines():
+            print(f"[DEBUG] {line}")
 
 
 def get_token(page: str) -> str:
@@ -30,6 +37,7 @@ def get_token(page: str) -> str:
 if __name__ == '__main__':
     bc = 'https://beancan.io'
 
+    debug_print("Reading config file...")
     with open('cfg/config.json') as cfg_file:
         cfg = json.load(cfg_file)
 
@@ -58,6 +66,8 @@ if __name__ == '__main__':
 
     debug_print(f"Logged in as {cfg['beancan_email']}")
 
+    # It appears the CSRF token doesn't change between requests,
+    # but we still retrieve it just in case.
     debug_print("Getting map-generate CSRF token...")
     r = session.get(f'{bc}/map-generate', timeout=cfg['timeout'])
     map_token = get_token(r.text)
@@ -78,11 +88,11 @@ if __name__ == '__main__':
                            timeout=cfg['timeout'])
     map_gen.raise_for_status()
 
-    debug_print(map_gen.url)
+    debug_print(f"Map generation started at {map_gen.url}")
 
-    # Check every 10 seconds to see if the map_gen URL redirects to
-    #   https://beancan.io. If it does, that means the map is done generating
-    debug_print("Waiting for redirect")
+    # Check every 10 seconds to see if the map_gen URL redirects elsewhere.
+    # If it does, that means the map is done generating.
+    debug_print("Waiting for redirect...")
     while True:
         sleep(10)
         r = session.get(map_gen.url, timeout=cfg['timeout'])
@@ -97,12 +107,11 @@ if __name__ == '__main__':
     # Maybe this will need to be updated one day.
     map_url = f"{bc}/maps/{map_payload['seed']}-{map_payload['size']}"
 
-    debug_print(f"Generating map object from {map_url}")
+    debug_print(f"Generated map available at {map_url}")
 
     map = Map(map_url, map_payload['seed'], map_payload['size'],
               timeout=cfg['timeout'])
 
-    debug_print("Map generated")
     debug_print(f"Features: {map.features}")
 
     # Webhook time!
