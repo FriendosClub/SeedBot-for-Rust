@@ -4,30 +4,104 @@ import json
 import requests
 from bs4 import BeautifulSoup
 from dhooks.discord_hooks import Webhook
+from random import randint
+from seedbot.map import Map
+from time import sleep
 
 
-class Map():
+def debug_print(msg: str):
+    for line in msg.splitlines():
+        print(f"[DEBUG] {line}")
 
-    """Object for managing map generation
 
-    Attributes:
-        laravel_session (str): Cookie for beancan.io
-        map_size (int): Map size. 1000 <= x <= 6000
+def get_token(page: str) -> str:
+    """Get the Laravel CSRF token for submitting a form
+
+    Args:
+        page (str): HTML text response of a request
+
+    Returns:
+        str: CSRF token
     """
-
-    def __init__(self, config: dict):
-        """Default constructor
-
-        Args:
-            config (dict): JSON object generated from `config.json`
-        """
-        self.laravel_session = config['laravel_session']
-        self.map_size = config['map_size']
+    soup = BeautifulSoup(page, 'html.parser')
+    return soup.find('input', {'name': '_token'}).get('value')
 
 
 if __name__ == '__main__':
+    bc = 'https://beancan.io'
+
     with open('cfg/config.json') as cfg_file:
         cfg = json.load(cfg_file)
 
-    # Debugging
-    print(f"Map size: {cfg['map_size']}")
+    debug_print("seedbot.py started")
+
+    session = requests.Session()
+
+    debug_print("New session initialized")
+
+    debug_print("Retrieving login CSRF token...")
+    r = session.get(f'{bc}/login', timeout=cfg['timeout'])
+    login_token = get_token(r.text)
+    debug_print(f"Got token {login_token}")
+
+    login_payload = {
+        'email': cfg['beancan_email'],
+        'password': cfg['beancan_password'],
+        '_token': login_token
+    }
+
+    debug_print("Logging in...")
+    login = session.post(f'{bc}/login', data=login_payload,
+                         timeout=cfg['timeout'])
+
+    login.raise_for_status()
+
+    debug_print(f"Logged in as {cfg['beancan_email']}")
+
+    debug_print("Getting map-generate CSRF token...")
+    r = session.get(f'{bc}/map-generate', timeout=cfg['timeout'])
+    map_token = get_token(r.text)
+    debug_print(f"Got token {map_token}")
+
+    map_payload = {
+        'seed': randint(1, 2147483647),
+        'size': cfg['map_size'],
+        'level': 'Procedural Map',
+        '_token': map_token
+    }
+
+    debug_print("Generating map...")
+    debug_print(f"Size: \t{map_payload['size']}")
+    debug_print(f"Seed: \t{map_payload['seed']}")
+
+    map_gen = session.post(f'{bc}/map-generate', data=map_payload,
+                           timeout=cfg['timeout'])
+    map_gen.raise_for_status()
+
+    debug_print(map_gen.url)
+
+    # Check every 10 seconds to see if the map_gen URL redirects to
+    #   https://beancan.io. If it does, that means the map is done generating
+    debug_print("Waiting for redirect")
+    while True:
+        sleep(10)
+        r = session.get(map_gen.url, timeout=cfg['timeout'])
+
+        debug_print(f"Current URL: {r.url}")
+
+        if 'map-generate' not in r.url:
+            debug_print("Redirect detected")
+            # Take a little
+            break
+
+    # We could check redirects but all URLs follow a uniform pattern.
+    # Maybe this will need to be updated one day.
+    map_url = f"{bc}/maps/{map_payload['seed']}-{map_payload['size']}"
+
+    debug_print(f"Generating map object from {map_url}")
+
+    map = Map(map_url, map_payload['seed'], map_payload['size'],
+              timeout=cfg['timeout'])
+
+    debug_print("Map generated")
+    debug_print(f"Features: {map.features}")
