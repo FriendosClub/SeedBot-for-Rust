@@ -17,17 +17,24 @@ Theoretically (and once the project is finished), one could use a tool like `cro
 
 ## Configuration
 
-**TODO**
+The configuration file is pretty self-explanatory. Here's an explanation anyway:
+
+- `webhook_url`: Webhook for a Discord text channel.
+  - See [this article](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks) for more info about creating a webhook.
+- `beancan_email` and `beancan_password`: Login information for a [beancan.io](https://beancan.io) account.
+- `map_size`: How large of a map you'd like to generate.
+  - Min. 1000, max 6000.
+- `timeout`: How long to wait before HTTP requests are terminated.
 
 ## Roadmap
 
 Completed | Feature
 --------- | -------
 :white_check_mark: | Basic webhook functionality
-:x: | Read beancan.io login info and map size from `config.json`
-:x: | Generate map on beancan.io [note: probably a POST request]
-:x: | Retrieve and parse map data with BeautifulSoup
-:x: | Format map data as a rich embed and posting via webhook
+:white_check_mark: | Read beancan.io login info and map size from `config.json`
+:white_check_mark: | Generate map on beancan.io
+:white_check_mark: | Retrieve and parse map data with BeautifulSoup
+:white_check_mark: | Format map data ~~as a rich embed~~ and post via webhook
 :x: | Implement basic error handling
 :x: | Implement retry backoff in case of an error
 :x: | Add ability to filter by monuments (Airport, Harbor, Launch Site, etc.)
