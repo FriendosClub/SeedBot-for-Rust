@@ -3,13 +3,13 @@
 import json
 import requests
 from bs4 import BeautifulSoup
-from dhooks.discord_hooks import Webhook
 from random import randint
 from seedbot.map import Map
 from time import sleep
 
 
 def debug_print(msg: str):
+    # TODO: Only print debug info if command-line flag is set
     for line in msg.splitlines():
         print(f"[DEBUG] {line}")
 
@@ -91,7 +91,6 @@ if __name__ == '__main__':
 
         if 'map-generate' not in r.url:
             debug_print("Redirect detected")
-            # Take a little
             break
 
     # We could check redirects but all URLs follow a uniform pattern.
@@ -105,3 +104,25 @@ if __name__ == '__main__':
 
     debug_print("Map generated")
     debug_print(f"Features: {map.features}")
+
+    # Webhook time!
+    content = (":map: **New map generated!**\n\n",
+               f"**Seed:** {map.seed}\n",
+               f"**Size:** {map.size}\n",
+               f"**Features:** {', '.join(map.features)}\n",
+               f"**High-res map:** {map.img_hi_res}\n",
+               f"**Low-res w/ monuments:** {map.img_monuments}\n")
+
+    webhook_payload = {
+        'username': "SeedBot for Rust",
+        'avatar_url': "https://i.imgur.com/r5jdE71.png",  # Transparent map icon
+        'content': ''.join(content)
+    }
+
+    debug_print("Webhook payload:")
+    debug_print(json.dumps(webhook_payload, indent=2, sort_keys=True))
+
+    debug_print("Posting map to webhook...")
+    w = requests.post(cfg['webhook_url'], json=webhook_payload)
+    w.raise_for_status()
+    debug_print("Map posted")

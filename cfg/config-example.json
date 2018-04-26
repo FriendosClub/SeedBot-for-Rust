@@ -1,5 +1,5 @@
 {
-    "webook_url": "https://discordapp.com/api/webhooks/id/key",
+    "webhook_url": "https://discordapp.com/api/webhooks/id/key",
     "beancan_email": "you@domain.com",
     "beancan_password": "p@ssw0rd",
     "map_size": 3000,
